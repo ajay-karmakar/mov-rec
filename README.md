@@ -5,7 +5,7 @@ The app fetches movie data from a `.csv` file, processes it using Pandas, and fi
 
 ## Features
 
-- Built with [Flet](https://flet.io/), a framework based on Flutter for creating modern, interactive user interfaces in Python.
+- Built with [Flet](https://flet.dev/), a framework based on Flutter for creating modern, interactive user interfaces in Python.
 - **Fast Data Processing**: Uses **Pandas** to efficiently read, process, and filter the movie data from a `.csv` file, ensuring the app can handle large datasets and provide quick updates.
 - **Real-time Recommendations**: The tool updates movie recommendations instantly as the user selects different genres or languages.
 - **Nearest Neighbors Filtering**: Uses the **Nearest Neighbors algorithm** from **Scikit-learn** to optimize movie recommendations by finding the most similar movies based on user input (e.g., genre, language).
