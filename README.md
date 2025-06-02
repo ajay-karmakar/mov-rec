@@ -1,7 +1,7 @@
 # mov-rec
 
 A Python-based movie recommendation tool built using **Flet**, a UI framework based on **Flutter**, along with **Pandas** for fast data handling.
-The app fetches movie data from a `.csv` file, processes it using Pandas, and filters the results based on user input. It then uses genre-based one-hot encoding and applies stepwise filtering (primary, secondary, tertiary genre, and language) to recommend movies. The app is designed for speed and interactivity.
+The app fetches movie data from a `.csv` file, processes it using Pandas, and filters the results based on user input. It then uses genre-based one-hot encoding and applies stepwise filtering (primary, secondary, tertiary genre, and language) to recommend movies.It is designed for speed and interactivity.
 
 ## Features
 
