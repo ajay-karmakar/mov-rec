@@ -1,48 +1,35 @@
 import flet as ft
 import pandas as pd
-from sklearn.neighbors import NearestNeighbors
 import random
 
-# Load the dataset
 df = pd.read_csv('movies.csv', low_memory=False)
 
-# Preprocessing the data
-df['genres'] = df['genres'].fillna('')  # Handle missing genres
+df['genres'] = df['genres'].fillna('')
 
-# Process genres into list form (split by commas and dashes)
 def process_genres(genre_column):
     return [genre.strip() for genre in genre_column.replace('-', ',').split(',') if genre.strip()]
 
 df['genre_names'] = df['genres'].apply(process_genres)
 
-# Flatten all genre names into a unique set of genres
 all_genres = set([genre for sublist in df['genre_names'] for genre in sublist])
 
-# Convert genres into binary (One-hot encoding)
 genre_columns = {genre: [] for genre in all_genres}
 for genres in df['genre_names']:
     for genre in all_genres:
         genre_columns[genre].append(1 if genre in genres else 0)
 
-# Add the genre columns to the dataframe
 for genre, values in genre_columns.items():
     df[genre] = values
 
-# Prepare the feature matrix for recommendation (only using genres)
 genre_columns_list = list(genre_columns.keys())
 X = df[genre_columns_list]
 
-# Create a nearest neighbor model based on genres
-model = NearestNeighbors(metric='hamming')
-model.fit(X)
-
 # Function to get recommendations based on selected genres and language
 def get_recommendations(primary_genre, secondary_genre, tertiary_genre, language):
-    # Check if any genre is blank
+    
     if not primary_genre or not secondary_genre or not tertiary_genre:
         return "Blank Space\n"  # Return if any genre is blank
 
-    # Handle duplicate genres: only keep unique genres
     selected_genres = list(set([primary_genre, secondary_genre, tertiary_genre]))
 
     # Step 1: Filter movies by primary genre
@@ -58,11 +45,9 @@ def get_recommendations(primary_genre, secondary_genre, tertiary_genre, language
     if language:
         tertiary_matches = tertiary_matches[tertiary_matches['original_language'] == language]
 
-    # If no movies match, return a message
     if tertiary_matches.shape[0] == 0:  # Check if there are no rows in the DataFrame
         return "No matching movies found for the selected genres and language.\n"
 
-    # Ensure we have valid indexes before trying to select
     if tertiary_matches.shape[0] > 0:
         # Randomly select a movie index from the filtered DataFrame
         random_index = random.choice(tertiary_matches.index.tolist())
@@ -77,16 +62,13 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.theme_mode = ft.ThemeMode.DARK
 
-    # Title at the top
     title_text = ft.Text(
         "Get Recommended a Movie", size=30, color="white", weight=ft.FontWeight.BOLD
     )
 
-    # Set background color
     page.bgcolor = "#121212"  # Dark background, like Material Design dark mode
     page.padding = 20  # Add padding for overall layout
 
-    # Initialize the state
     primary_genre_input = ft.Dropdown(
         label="Select Primary Genre",
         options=[ft.dropdown.Option(genre) for genre in all_genres],
@@ -119,9 +101,8 @@ def main(page: ft.Page):
         focused_border_color="green",
     )
 
-    result_text = ft.Text(value="", size=18, color="white", text_align="center", font_family="Arial")  # Using a different font, e.g., "Roboto"  # Display result or error message
+    result_text = ft.Text(value="", size=18, color="white", text_align="center", font_family="Arial")  
 
-    # Store the initial state of selected genres and language
     initial_genres = {
         "primary": None,
         "secondary": None,
@@ -129,7 +110,6 @@ def main(page: ft.Page):
         "language": None
     }
 
-    # Button to fetch recommendations
     recommend_button = ft.ElevatedButton(
         text="Get Recommendation",
         on_click=lambda e: handle_recommendation(
@@ -139,12 +119,10 @@ def main(page: ft.Page):
         width=200,  # Button width
     )
 
-    # Credit button
     credit_button = ft.Text(
         "Made by AJ", size=16, color="red", weight=ft.FontWeight.BOLD, font_family="Helvetica"
     )
 
-    # GitHub button
     github_button = ft.ElevatedButton(
         text="GitHub",
         on_click=lambda e: page.launch_url("https://github.com/ajay-karmakar"),
@@ -152,7 +130,6 @@ def main(page: ft.Page):
         width=150,  # Button width
     )
 
-    # Adding all controls to the page in a scrollable container
     page.add(
         ft.ListView(
             expand=True,
@@ -161,7 +138,7 @@ def main(page: ft.Page):
                     [
                         ft.Column(
                             [
-                                title_text,  # Title at the top
+                                title_text, 
                                 primary_genre_input,
                                 secondary_genre_input,
                                 tertiary_genre_input,
@@ -179,11 +156,10 @@ def main(page: ft.Page):
                     [
                         ft.Column(
                             [
-                                # Wrap result_text inside a container with responsive width
                                 ft.Container(
                                     content=result_text,
                                     width=350 if page.width < 600 else 500,  # Use 350px width on mobile, 500px on desktop
-                                    padding=ft.Padding(10,10,10,10),  # top, right, bottom, left
+                                    padding=ft.Padding(10,10,10,10),  # top, right, bottom, left        
                                     alignment=ft.alignment.center,
                                 )
                             ],
@@ -192,7 +168,6 @@ def main(page: ft.Page):
                         )
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
-                    #vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
                 ft.Row(
                     [
@@ -239,14 +214,10 @@ def handle_recommendation(page, primary_genre_input, secondary_genre_input, tert
         language = str(recommendation.get('original_language', 'No Language Available'))
         popularity = str(recommendation.get('popularity', 'No Data Available'))
 
-
-        # Slice overview to avoid overflow and make it more readable
         result_text.value = f"{title}\n\nOverview: {overview[:200]}...\nRelease Date: {release_date}\nLanguage: {language}\nPopularity: {popularity}\n"
 
     else:
         result_text.value = "No matching movie found for the selected genres and language.\n"
-
-    # Update the UI
     page.update()
 
 ft.app(target=main)
